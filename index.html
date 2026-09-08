@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Viciniti</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="stage">
+    <div class="phone" id="phone">
+      <div class="phone-bg"></div>
+      <div class="phone-vignette"></div>
+      <header class="topbar" id="topbar">
+        <button class="brand neon" id="brandBtn">Viciniti</button>
+        <div class="top-meta" id="topMeta"></div>
+      </header>
+      <main class="screens">
+        <section class="screen welcome" id="screen-welcome">
+          <div class="logo">Viciniti</div>
+          <svg class="bike-hero" viewBox="0 0 320 160" fill="none" aria-hidden="true">
+            <path d="M46 118a28 28 0 1 0 0.1 0M232 118a28 28 0 1 0 0.1 0" stroke="currentColor" stroke-width="3"/>
+            <path d="M74 118l38-62h58l36 50M112 56l-18-22H72M170 56v62M128 90h70" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p class="tagline">Ride Together. Stay Connected.</p>
+          <div class="btn-row">
+            <button class="btn-neon" data-go="home">Get Started</button>
+            <button class="btn-ghost" data-go="home">Sign in with Apple</button>
+            <button class="btn-ghost" data-go="home">Sign in with Google</button>
+          </div>
+        </section>
+        <section class="screen pad-top" id="screen-home">
+          <p class="welcome-line">Welcome back, Rider!</p>
+          <div class="host-join">
+            <button class="neon-frame" data-go="host">HOST RIDE</button>
+            <button class="neon-frame" data-go="join">JOIN RIDE</button>
+          </div>
+          <div class="neon-frame toggle-row">
+            <span>Group Ride Mode</span>
+            <button class="switch on" id="groupToggle" type="button"><i></i></button>
+          </div>
+          <div class="stats-duo">
+            <div class="neon-frame stat-box"><label>Total Rides</label><b>42</b></div>
+            <div class="neon-frame stat-box"><label>Distance</label><b>1,240 mi</b></div>
+          </div>
+        </section>
+        <section class="screen pad-top" id="screen-host">
+          <div class="kicker-label">Host ride</div>
+          <div class="label">Ride name</div>
+          <input class="field" id="rideName" value="Coast loop" />
+          <div class="label">Your class — same-class pack only</div>
+          <div class="classes" id="hostClasses"></div>
+          <button class="btn-neon fill" id="startHost">Start as host</button>
+          <button class="linkish" data-go="home">Cancel</button>
+        </section>
+        <section class="screen pad-top" id="screen-join">
+          <div class="kicker-label">Open rides</div>
+          <div class="list" id="joinList"></div>
+          <button class="linkish" data-go="home">Back</button>
+        </section>
+        <section class="screen" id="screen-hud">
+          <div>
+            <div class="kicker-label">Ride Focus</div>
+            <button class="status-pill" id="statusPill"><span class="dot"></span><span id="statusText">On Track</span></button>
+          </div>
+          <section class="glass speed-card">
+            <div class="speedo">
+              <svg viewBox="0 0 320 178" class="speedo-svg" aria-hidden="true">
+                <defs><filter id="mintGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+                <g id="ticks"></g><g id="needle"></g>
+              </svg>
+              <div class="speed-readout">
+                <div class="speed-label">Speed</div>
+                <div class="speed-row"><span class="speed-num" id="speedNum">23</span><span class="speed-unit">KM/H</span></div>
+                <div class="cruise"><span class="cruise-dot"></span><span id="paceLabel">Cruise</span></div>
+              </div>
+              <div class="speed-ends"><span>0</span><span id="speedMaxLabel">60</span></div>
+            </div>
+          </section>
+          <section class="glass split-card">
+            <div class="turn-side">
+              <div class="turn-arrow"><svg viewBox="0 0 48 48"><path d="M14 34V22h16" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M24 14l12 8-12 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg></div>
+              <div><div class="turn-dist">→ <span id="turnDist">250 M</span></div><div class="turn-name" id="turnName">Turn Right</div></div>
+            </div>
+            <div class="lead-side"><div class="lead-label">Distance from Lead</div><div class="lead-val" id="leadDist">18 M</div></div>
+          </section>
+          <section class="glass map-card">
+            <div class="map-head"><span id="mapStatus">On Route · <b>12.4 KM</b> remaining</span><button class="recenter" id="recenterBtn">➤</button></div>
+            <svg class="map-svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+              <defs><filter id="routeGlow"><feGaussianBlur stdDeviation="4" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <radialGradient id="puckFill" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#E8FFF6"/><stop offset="1" stop-color="#7DFFC4"/></radialGradient></defs>
+              <g id="streets" opacity="0.55"></g>
+              <path id="routePath" filter="url(#routeGlow)" fill="none" stroke="#7DFFC4" stroke-width="3.4" stroke-linecap="round"/>
+              <g id="pucks"></g>
+            </svg>
+          </section>
+        </section>
+        <section class="screen" id="screen-health">
+          <div><div class="kicker-label">Health</div><button class="status-pill"><span class="dot"></span><span>Stable</span></button></div>
+          <section class="glass metric-hero">
+            <div class="hr-ring">
+              <svg viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="58" stroke="rgba(255,255,255,.08)" stroke-width="8" fill="none"/>
+                <circle id="hrArc" cx="70" cy="70" r="58" stroke="#7DFFC4" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="364" stroke-dashoffset="140" transform="rotate(-90 70 70)"/>
+              </svg>
+              <div class="hr-read"><div class="hr-num" id="hrNum">118</div><div class="hr-unit">BPM</div></div>
+            </div>
+            <div class="hr-meta">
+              <div class="meta-row"><span>Zone</span><b id="hrZone">Endurance</b></div>
+              <div class="meta-row"><span>Ride time</span><b id="rideClock">00:42:18</b></div>
+              <div class="meta-row"><span>Cadence</span><b id="cadence">74 rpm</b></div>
+            </div>
+          </section>
+          <section class="glass grid-2">
+            <div class="mini"><div class="mini-label">Group radius</div><div class="mini-val" id="radiusVal">250 ft</div><div class="mini-sub" id="radiusHint">Inside bubble</div></div>
+            <div class="mini"><div class="mini-label">SOS</div><button class="sos" id="sosBtn">Hold for distress</button></div>
+          </section>
+          <section class="glass roster"><div class="roster-title">Riders</div><ul id="rosterList"></ul></section>
+        </section>
+        <section class="screen" id="screen-stats">
+          <div><div class="kicker-label">Stats</div><div class="ghost-chip" id="classChip">E-Bike</div></div>
+          <section class="glass stat-grid">
+            <div class="stat"><span>Distance</span><b id="statDist">8.7 km</b></div>
+            <div class="stat"><span>Moving time</span><b id="statTime">00:42</b></div>
+            <div class="stat"><span>Avg speed</span><b id="statAvg">21.4</b></div>
+            <div class="stat"><span>Elevation</span><b id="statEl">186 m</b></div>
+          </section>
+          <section class="glass class-picker">
+            <div class="picker-label">Vehicle class</div>
+            <div class="classes" id="classButtons"></div>
+            <p class="picker-note" id="classNote"></p>
+          </section>
+          <button class="end-ride" id="endRide">End ride</button>
+        </section>
+        <section class="screen" id="screen-radar">
+          <div class="radar-grid">
+            <div class="radar-wrap neon-frame">
+              <svg class="radar-svg" viewBox="0 0 320 320">
+                <circle cx="160" cy="160" r="140" fill="none" stroke="rgba(57,255,106,.18)"/>
+                <circle cx="160" cy="160" r="104" fill="none" stroke="rgba(57,255,106,.28)"/>
+                <circle cx="160" cy="160" r="68" fill="none" stroke="rgba(57,255,106,.4)"/>
+                <circle cx="160" cy="160" r="32" fill="none" stroke="rgba(57,255,106,.7)"/>
+                <g id="radarDots"></g>
+              </svg>
+              <div class="lead-word">Lead</div>
+            </div>
+            <div class="dist-col" id="radarList"></div>
+          </div>
+          <button class="btn-neon" data-go="rollcall">Roll Call</button>
+        </section>
+        <section class="screen pad-top" id="screen-rollcall">
+          <h2 class="center">Ride Roll Call</h2>
+          <div class="time-rem" id="rollTime">Time Remaining: 02:45</div>
+          <div class="list" id="rollList"></div>
+          <button class="btn-neon" id="takeRoll">Take Roll Call</button>
+        </section>
+        <section class="screen pad-top" id="screen-safety">
+          <h2 class="center">Safety Guide</h2>
+          <div class="list" id="safetyList"></div>
+          <button class="sos-big" id="sosBig">SOS</button>
+        </section>
+        <section class="screen pad-top" id="screen-alerts">
+          <button class="btn-neon fill mark-read" id="markRead">Mark all read</button>
+          <div class="list" id="alertList"></div>
+        </section>
+        <section class="screen profile pad-top" id="screen-profile">
+          <div class="avatar lg">AR</div>
+          <h2>Alex Rider</h2>
+          <div class="role-chip">Road Captain</div>
+          <div class="stats-duo" style="width:100%">
+            <div class="neon-frame stat-box"><label>Total Rides</label><b>84</b></div>
+            <div class="neon-frame stat-box"><label>Miles</label><b>3,402</b></div>
+          </div>
+          <div class="neon-frame stat-box" style="width:100%"><label>Groups Led</label><b>12</b></div>
+          <button class="btn-neon fill" data-go="safety">Safety guide</button>
+          <button class="btn-ghost" id="editProfile">Edit Profile</button>
+        </section>
+      </main>
+      <nav class="tabbar glass" id="tabbar"></nav>
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
