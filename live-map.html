@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Viciniti live map</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <style>
+    html, body, #map { margin:0; height:100%; background:#0b1018; }
+    body { font-family: Inter, system-ui, sans-serif; color:#f4f7fb; }
+    #hud {
+      position:fixed; left:12px; right:12px; top:12px; z-index:2;
+      display:flex; justify-content:space-between; gap:8px; pointer-events:none;
+    }
+    .card {
+      pointer-events:auto; background:rgba(8,12,18,.72); backdrop-filter:blur(16px);
+      border:1px solid rgba(125,255,196,.22); border-radius:16px; padding:10px 12px;
+    }
+    #dock {
+      position:fixed; left:12px; right:12px; bottom:16px; z-index:2;
+      background:rgba(8,12,18,.78); backdrop-filter:blur(16px);
+      border:1px solid rgba(125,255,196,.22); border-radius:18px; padding:12px;
+    }
+    button {
+      border:0; border-radius:12px; padding:10px 12px; font-weight:700; cursor:pointer;
+    }
+    .mint { background:#7dffc4; color:#04110a; }
+    .ghost { background:transparent; color:#7dffc4; border:1px solid rgba(125,255,196,.3); }
+    .row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+    .sub { color:rgba(244,247,251,.55); font-size:12px; }
+    h1 { font-size:16px; margin:0 0 4px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="hud">
+    <div class="card">
+      <h1>Viciniti map</h1>
+      <div class="sub" id="meta">OpenFreeMap · OSRM · no Google</div>
+    </div>
+    <div class="card sub" id="gps">Locating…</div>
+  </div>
+  <div id="dock">
+    <div class="sub" style="margin-bottom:8px">Coast loop · Fort Point → Stinson Beach</div>
+    <div class="row">
+      <button class="ghost" id="fit">Fit ride</button>
+      <button class="ghost" id="meet">Meetup</button>
+      <button class="mint" id="me">My GPS</button>
+    </div>
+  </div>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script>
+    const MEET = { lng: -122.4770, lat: 37.8106 };
+    const END = { lng: -122.6445, lat: 37.8986 };
+    const map = new maplibregl.Map({
+      container: "map",
+      style: "https://tiles.openfreemap.org/styles/dark",
+      center: [MEET.lng, MEET.lat],
+      zoom: 13.6
+    });
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    const geo = new maplibregl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true
+    });
+    map.addControl(geo, "top-right");
+    function pin(ll, label, color) {
+      const el = document.createElement("div");
+      el.style.cssText = "background:"+color+";color:#04110a;font:800 11px Inter;padding:4px 7px;border-radius:10px;box-shadow:0 0 0 4px rgba(125,255,196,.2)";
+      el.textContent = label;
+      new maplibregl.Marker({ element: el }).setLngLat(ll).addTo(map);
+    }
+    map.on("load", async () => {
+      pin([MEET.lng, MEET.lat], "MEET", "#7dffc4");
+      pin([END.lng, END.lat], "END", "#ffc857");
+      pin([-122.4762, 37.8089], "YOU", "#e8fff6");
+      pin([-122.4728, 37.8074], "SAM", "#7dffc4");
+      pin([-122.4794, 37.8128], "MAYA", "#7dffc4");
+      try {
+        const url = "https://router.project-osrm.org/route/v1/bike/" + MEET.lng + "," + MEET.lat + ";" + END.lng + "," + END.lat + "?overview=full&geometries=geojson";
+        const json = await (await fetch(url)).json();
+        const g = json.routes[0].geometry;
+        map.addSource("r", { type: "geojson", data: { type: "Feature", geometry: g } });
+        map.addLayer({ id: "rg", type: "line", source: "r", paint: { "line-color": "#7dffc4", "line-width": 8, "line-opacity": .2 } });
+        map.addLayer({ id: "rl", type: "line", source: "r", paint: { "line-color": "#7dffc4", "line-width": 3 } });
+        document.getElementById("meta").textContent =
+          "OSRM " + (json.routes[0].distance/1000).toFixed(1) + " km · " + Math.round(json.routes[0].duration/60) + " min";
+      } catch (e) {
+        document.getElementById("meta").textContent = "Map live · routing later";
+      }
+    });
+    document.getElementById("meet").onclick = () => map.flyTo({ center: [MEET.lng, MEET.lat], zoom: 15 });
+    document.getElementById("fit").onclick = () => map.fitBounds([[MEET.lng, MEET.lat],[END.lng, END.lat]], { padding: 60 });
+    document.getElementById("me").onclick = () => geo.trigger();
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => document.getElementById("gps").textContent = "GPS live",
+        () => document.getElementById("gps").textContent = "GPS off · SF demo"
+      );
+    }
+  </script>
+</body>
+</html>
